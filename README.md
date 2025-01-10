@@ -1,19 +1,6 @@
-# Sopel for Docker
+# Sopel for Docker (Forked Version)
 
-[![Docker Stars](https://img.shields.io/docker/stars/sopelirc/sopel?style=flat-square)](https://hub.docker.com/r/sopelirc/sopel)
-[![Docker Pulls](https://img.shields.io/docker/pulls/sopelirc/sopel?style=flat-square)](https://hub.docker.com/r/sopelirc/sopel)
-[![Docker Image Size (latest)](https://img.shields.io/docker/image-size/sopelirc/sopel/latest?label=latest&style=flat-square)](https://hub.docker.com/r/sopelirc/sopel/tags)
-[![Docker Image Size (nightly)](https://img.shields.io/docker/image-size/sopelirc/sopel/nightly?label=nightly&style=flat-square)](https://hub.docker.com/r/sopelirc/sopel/tags)
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sopel-irc/docker-sopel/docker-publish.yml?branch=master&style=flat-square)](https://github.com/sopel-irc/docker-sopel/actions/workflows/docker-publish.yml)
-
-:whale: Officially Unofficial™ Docker container for Sopel, a Python IRC bot
-
-**Relevant links**:
-
-* Sopel Homepage @ [Sopel, The Python IRC Bot](https://sopel.chat)
-* Sopel GitHub @ [sopel-irc/sopel](https://github.com/sopel-irc/sopel)
-* Docker GitHub @ [sopel-irc/docker-sopel](https://github.com/sopel-irc/docker-sopel)
-* Docker Registry @ [sopelirc/sopel](https://hub.docker.com/r/sopelirc/sopel)
+This is a forked repository of the Sopel Docker container, a Python IRC bot. Unlike the original repository, this fork utilizes Debian as the base image instead of Alpine. Additionally, the image is not prebuilt or available in any Docker registry. It must be built manually from the provided Dockerfile.
 
 ---
 
@@ -21,16 +8,20 @@
 
 ### First run
 
-* Pull the docker image for the latest Sopel release ([v8.0.1](https://github.com/sopel-irc/sopel/releases/tag/v8.0.1))
+To get started, you need to manually build the Docker image from the source in this repository. Follow these steps:
+
+* Clone the repository and build the image for the latest Sopel release ([v8.0.1](https://github.com/sopel-irc/sopel/releases/tag/v8.0.1))
 
     ```console
-    $ docker pull sopelirc/sopel:latest
+    git clone <repository-url>
+cd <repository-directory>
+docker build -t sopel:debian .
     ```
 
 * Start your bot. Specify a name (e.g., `my_first_sopel`) for the container to make subsequent startups and shutdowns easier.
 
     ```console
-    $ docker run --name=my_first_sopel -ti sopelirc/sopel
+    docker run --name=my_first_sopel -ti sopel:debian
     ```
 
     On the first run, you will be taken through the setup wizard to write the bot's configuration file. See the ["First run" Sopel Wiki entry](https://sopel.chat/tutorials/part-1-installation/#first-run) for more details.
@@ -95,15 +86,11 @@ You can also mount a pip `requirements.txt` formatted file to `/pypi_packages.tx
 
 Mount the module source directory into `/home/sopel/.sopel/modules`, and Sopel will automatically recognize and load the module.
 
-#### Alpine Linux packages
+#### Debian Linux packages
 
-See [`EXTRA_APK_PACKAGES` environment variable](#extra_apk_packages).
+See [`EXTRA_APT_PACKAGES` environment variable](#extra_apk_packages).
 
-You can also mount a text file to `/apk_packages.txt` with a list of packages to be installed on startup.
-
-### Nightly Builds
-
-An image based on the master branch of [sopel-irc/sopel](https://github.com/sopel-irc/sopel) is rebuilt each day at 00:00 UTC using the `nightly` tag.
+You can also mount a text file to `/apt_packages.txt` with a list of packages to be installed on startup.
 
 ---
 
@@ -113,7 +100,7 @@ When you start the bot, you can adjust various settings related to the environme
 
 ### `PUID` and `PGID`
 
-Normally, the `sopel` process runs with `UID` and `GID` of `100000` to prevent any unwanted/accidental access to host resources. This means that mounted volumes will need to allow read and write to a user with those ids. Instead, you can set these to change the ids of the sopel user on startup. For example, 
+Normally, the `sopel` process runs with `UID` and `GID` of `1000` to prevent any unwanted/accidental access to host resources. This means that mounted volumes will need to allow read and write to a user with those ids. Instead, you can set these to change the ids of the sopel user on startup. For example, 
 
 ```console
 $ docker run -e PUID=1000 ...
@@ -145,13 +132,13 @@ Welcome to Sopel. Loading modules...
 
 will install the [sopel weather module](https://pypi.org/project/sopel-modules.weather), the [sopel YouTube module](https://pypi.org/project/sopel_modules.youtube) and its [google-api-python-client](https://pypi.org/project/google-api-python-client) requirement.
 
-### `EXTRA_APK_PACKAGES`
+### `EXTRA_APT_PACKAGES`
 
-Occasionally, you may need to install system packages to satisfy requirements for various Python packages. These packages can be specified as a space separated list of packages to be installed by `apk add --no-cache ...`. For example, you may need a database client, various tools required for compiling source code, and git to allow pip to install from a repository:
+Occasionally, you may need to install system packages to satisfy requirements for various Python packages. These packages can be specified as a space separated list of packages to be installed by `apt-get install --no-cache ...`. For example, you may need a database client, various tools required for compiling source code, and git to allow pip to install from a repository:
 
 ```console
-$ docker run -e EXTRA_APK_PACKAGES="mysql-client build-base git" ...
-Installing apk packages: mysql-client build-base git...
+$ docker run -e EXTRA_APT_PACKAGES="mysql-client build-base git" ...
+Installing apt packages: mysql-client build-base git...
 ...
 ...
 Welcome to Sopel. Loading modules...
@@ -159,3 +146,11 @@ Welcome to Sopel. Loading modules...
 ```
 
 will install the required system packages.
+
+
+**Relevant links**:
+
+* Sopel Homepage @ [Sopel, The Python IRC Bot](https://sopel.chat)
+* Sopel GitHub @ [sopel-irc/sopel](https://github.com/sopel-irc/sopel)
+* Docker GitHub @ [sopel-irc/docker-sopel](https://github.com/sopel-irc/docker-sopel)
+* Docker Registry @ [sopelirc/sopel](https://hub.docker.com/r/sopelirc/sopel)

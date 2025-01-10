@@ -1,17 +1,16 @@
 ## Build Arguments ##
 #####################
 ## Set the python image tag to use as the base image. 
-# See https://hub.docker.com/_/python?tab=tags for a list of valid tags.
-# Set  default below to desired Python version.
-ARG PYTHON_TAG=3.12-alpine
+# Set default below to desired Python version.
+ARG PYTHON_TAG=3.11
 ##
 
 ## Set the UID/GID that sopel will run and make files/folders as.
 # For security, these values are set past the upper limit of named users in most
 # linux environments. `chown` any volume mounts to the IDs specified here, or 
 # change to match your GID (and UID if desired) if you think its okay ¯\_(ツ)_/¯
-ARG SOPEL_GID=100000
-ARG SOPEL_UID=100000
+ARG SOPEL_GID=1000
+ARG SOPEL_UID=1000
 ##
 
 ## Set the repository used to pull the sopel source
@@ -26,32 +25,31 @@ ARG SOPEL_REPO=https://github.com/sopel-irc/sopel.git
 ARG SOPEL_BRANCH=v8.0.1
 ##
 
-## Do not modify below this !! ##
-#################################
-
 #####
 ### STAGE 1: Pull latest source
 #####
-FROM alpine:latest AS git-fetch
+FROM debian:latest AS git-fetch-stage
 
 ARG SOPEL_REPO
 ARG SOPEL_BRANCH
 
 RUN set -ex \
-  && apk add --no-cache --virtual .git \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
     git \
+    ca-certificates \
   && git clone \
     --depth 1 --branch ${SOPEL_BRANCH} \
     ${SOPEL_REPO} /sopel-src \
-  && apk del \
-    .git
-#####
-#####
+  && apt-get remove --purge -y git \
+  && apt-get autoremove -y \
+  && apt-get clean
 
 #####
 ### STAGE 2: Install Sopel
 #####
-FROM python:${PYTHON_TAG}
+FROM python:${PYTHON_TAG} AS build-stage
+
 # Pre-set ARGs
 ARG SOPEL_BRANCH
 # Injected ARGs
@@ -76,28 +74,29 @@ ARG SOPEL_GID
 ARG SOPEL_UID
 
 RUN set -ex \
-  && apk add --no-cache \
-    shadow \
-    su-exec \
-  && apk add --no-cache --virtual .build-deps \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
     gcc \
-    build-base \
-\
-  && addgroup -g ${SOPEL_GID} sopel \
-  && adduser -u ${SOPEL_UID} -G sopel -h /home/sopel -s /bin/ash sopel -D \
-\
+    build-essential \
+    sudo \
+    gosu \
+  && groupadd -g ${SOPEL_GID} sopel \
+  && useradd -u ${SOPEL_UID} -g sopel -m -s /bin/bash sopel \
   && mkdir /home/sopel/.sopel \
   && chown sopel:sopel /home/sopel/.sopel
 
 WORKDIR /home/sopel
 
-COPY --from=git-fetch --chown=sopel:sopel /sopel-src /home/sopel/sopel-src
+COPY --from=git-fetch-stage --chown=sopel:sopel /sopel-src /home/sopel/sopel-src
 RUN set -ex \
   && cd ./sopel-src \
-  && su-exec sopel python -m pip install . \
+  && gosu sopel python -m pip install . \
   && cd .. \
   && rm -rf ./sopel-src \
-  && apk del .build-deps
+  && apt-get purge -y --auto-remove \
+    gcc \
+    build-essential \
+  && apt-get clean
 
 VOLUME [ "/home/sopel/.sopel" ]
 
