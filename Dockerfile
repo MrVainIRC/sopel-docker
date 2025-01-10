@@ -28,7 +28,7 @@ ARG SOPEL_BRANCH=v8.0.1
 #####
 ### STAGE 1: Pull latest source
 #####
-FROM debian:latest AS git-fetch-stage
+FROM debian:stable-slim AS git-fetch-stage
 
 ARG SOPEL_REPO
 ARG SOPEL_BRANCH
@@ -56,19 +56,6 @@ ARG SOPEL_BRANCH
 ARG BUILD_DATE
 ARG VCS_REF
 ARG DOCKERFILE_VCS_REF
-LABEL maintainer="Humorous Baby <humorbaby@humorbaby.net>" \
-      org.label-schema.build-date="${BUILD_DATE}" \
-      org.label-schema.name="sopel" \
-      org.label-schema.description=" \
-        Sopel, the Python IRC bot. \
-        For stand-alone or compose/stack service use." \
-      org.label-schema.url="https://sopel.chat" \
-      org.label-schema.vcs-url="https://github.com/sopel-irc/sopel" \
-      org.label-schema.vcs-ref="${VCS_REF}" \
-      org.label-schema.version="Python ${PYTHON_VERSION}/Sopel ${SOPEL_BRANCH}" \
-      org.label-schema.schema-version="1.0" \
-      dockerfile.vcs-url="https://github.com/sopel-irc/docker-sopel" \
-      dockerfile.vcf-ref="${DOCKERFILE_VCS_REF}"
 
 ARG SOPEL_GID
 ARG SOPEL_UID
