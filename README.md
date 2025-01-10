@@ -13,15 +13,15 @@ To get started, you need to manually build the Docker image from the source in t
 * Clone the repository and build the image for the latest Sopel release ([v8.0.1](https://github.com/sopel-irc/sopel/releases/tag/v8.0.1))
 
     ```console
-    git clone <repository-url>
-cd <repository-directory>
-docker build -t sopel:debian .
+    $ git clone <repository-url>
+    $ cd <repository-directory>
+    $ docker build -t sopel:debian .
     ```
 
 * Start your bot. Specify a name (e.g., `my_first_sopel`) for the container to make subsequent startups and shutdowns easier.
 
     ```console
-    docker run --name=my_first_sopel -ti sopel:debian
+    $ docker run --name=my_first_sopel -ti sopel:debian
     ```
 
     On the first run, you will be taken through the setup wizard to write the bot's configuration file. See the ["First run" Sopel Wiki entry](https://sopel.chat/tutorials/part-1-installation/#first-run) for more details.
