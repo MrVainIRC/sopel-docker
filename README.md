@@ -10,7 +10,7 @@ This is a forked repository of the Sopel Docker container, a Python IRC bot. Unl
 
 To get started, you need to manually build the Docker image from the source in this repository. Follow these steps:
 
-* Clone the repository and build the image for the latest Sopel release ([v8.0.1](https://github.com/sopel-irc/sopel/releases/tag/v8.0.1))
+* Clone the repository and build the image for the latest Sopel release ([v8.0.2](https://github.com/sopel-irc/sopel/releases/tag/v8.0.2))
 
     ```console
     $ git clone <repository-url>
